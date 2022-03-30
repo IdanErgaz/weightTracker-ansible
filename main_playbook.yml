@@ -1,9 +1,9 @@
-- hosts: production
+- hosts: productionservers
   become: yes
   gather_facts: no
 
   vars_files:
-    - ansVar.yml
+    - productionservers.yml
 
   tasks:
 

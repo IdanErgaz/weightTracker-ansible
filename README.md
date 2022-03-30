@@ -28,7 +28,7 @@ ansible-playbook -v -i inventories/production main_playbook.yml
 ```
 # Instructions
 
- - Install ansible on ubuntu 18.04
+ - Install ansible on ubuntu 16.04
  - Create ssh key and copy to remote machine
  - Configure remote machine to enable ansible to run it.
 
@@ -37,8 +37,11 @@ ansible-playbook -v -i inventories/production main_playbook.yml
 ```
 1.SSH to the loadbalancer fornted ip -> get from run output.
 2.ssh from loadbalancer  to the controller machine.
-3.Deploy all prerequisites using the attached script (weightTrackerDepoly.sh) The script will deploy ansible + python3
--> copy the file to the controller machine and chnge permissions using: weightTrackerDepoly.sh cmod +x 
+3.run git clone https://github.com/IdanErgaz/weightTracker-ansible.git
+4. Run cd weightTracker-ansible
+5. Run chmod +x  weightTracker-ansible.sh
+4.Deploy all prerequisites using the attached script (weightTrackerDepoly.sh) The script will deploy ansible + python3
+
 - run the script and type "yes" for all.
 
 ```
@@ -52,18 +55,14 @@ Overwrite - Y
 press enter twice with passphrase empty
 
 Validate that key was created:
-rootAdmin@Controller-Server:~$ sudo ls -la /root/.ssh/
-total 20
-drwx------ 2 root root 4096 Mar 30 14:17 .
-drwx------ 5 root root 4096 Mar 30 13:47 ..
--rw------- 1 root root    0 Mar 30 13:15 authorized_keys
--rw------- 1 root root  399 Mar 30 14:17 id_ed25519
--rw-r--r-- 1 root root   89 Mar 30 14:17 id_ed25519.pub
--rw-r--r-- 1 root root  222 Mar 30 14:16 known_hosts
+rootAdmin@Controller-Server:~$ ls -la /home/rootAdmin/.ssh/
+total 16
+drwx------ 2 rootAdmin rootAdmin 4096 Mar 30 20:12 .
+drwxr-xr-x 7 rootAdmin rootAdmin 4096 Mar 30 20:11 ..
+-rw------- 1 rootAdmin rootAdmin    0 Mar 30 19:33 authorized_keys
+-rw------- 1 rootAdmin rootAdmin 2622 Mar 30 20:12 id_rsa
+-rw-r--r-- 1 rootAdmin rootAdmin  581 Mar 30 20:12 id_rsa.pub
 
-rootAdmin@Controller-Server:~$ cat  /root/.ssh/id_ed25519.pub
-rootAdmin@Controller-Server:~$ sudo cat  /root/.ssh/id_ed25519.pub
-ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMG4PCYGOnH8arOQUHD/EgwYJOiUYGzeArNmNvFN07Lc ansible
 
 ```
 ```
@@ -75,8 +74,7 @@ When promped whether to continue connecting press yes
 ## Configure remote machines (Slaves) to enable ansible to run commands on it.
 ```
 $ ssh (username)@(node machine ip)
-$ sudo apt upgrade -y
-$ sudo apt install python
+
 ```
 
 ## Change the file value for pubkeyAuthentication to "yes"
@@ -123,12 +121,13 @@ $ exit
 
 # Repeat the copy key and flag check for ALL nodes!
 
+# Exit to be on the controller > Edit the hosts file (On Master)
 
-## Edit the hosts file (On Master)
+
 
 ### Update hosts file for production in editor
 ```
-$ sudo vi ~/weightTracker-ansible/inventories/production/hosts
+sudo vi ~/weightTracker-ansible/inventories/production/hosts.txt
 type i (for insert)
 Update the ip according to the vmss instances ips.
 
@@ -141,7 +140,7 @@ press :wq
 
 ### Update hosts file for staging in editor
 ```
-$ sudo vi ~/weightTracker-ansible/inventories/staging/hosts
+$ sudo vi ~/weightTracker-ansible/inventories/staging/hosts.txt
 type i (for insert)
 Update the ip according to the vmss instances ips.
 
