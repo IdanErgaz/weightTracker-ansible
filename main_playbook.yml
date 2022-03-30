@@ -1,0 +1,58 @@
+- hosts: production
+  become: yes
+  gather_facts: no
+
+  vars_files:
+    - ansVar.yml
+
+  tasks:
+
+
+#Cloning the web app weight tracker app
+  - name:  Clone the weighTracker app to all nodes
+    git:
+        repo:  https://github.com/oktadev/okta-nodejs-postgres-weight-tracker-example.git
+        dest: /home/rootAdmin/weightTracker
+        force: yes
+
+  #node and npm installation
+  - name: install node
+    shell: |
+      curl -sL https://deb.nodesource.com/setup_14.x | sudo -E bash - && sudo apt-get install -y nodejs
+
+
+  - name: Install packages based on package.json using the npm
+    npm:
+      path: /home/rootAdmin/weightTracker
+      state: present
+
+
+
+#initialize db in all ngroup odes
+  - name: run initdb script
+    shell: cd /home/rootAdmin/weightTracker && npm run initdb
+    register: initdb
+    tags:
+      - initdb
+#Add .env file to all nodes
+  - name: add .env file
+    shell: |
+      echo "
+      # Host configuration
+      PORT=8080
+      HOST={{host}}
+      HOST_URL=http://{{ LB_front_ip }}:8080
+      COOKIE_ENCRYPT_PWD=superAwesomePasswordStringThatIsAtLeast32CharactersLong!
+      NODE_ENV=development
+
+      # Okta configuration
+      OKTA_ORG_URL={{ okta_url }}
+      OKTA_CLIENT_ID={{ okta_client_id }}
+      OKTA_CLIENT_SECRET={{ okta_client_secret }}
+
+      # Postgres configuration
+      PGHOST={{ pghost }}
+      PGUSERNAME={{ pg_username }}
+      PGDATABASE=postgres
+      PGPASSWORD={{ pg_password }}
+      PGPORT=5432" > /home/rootAdmin/weightTracker/.env;
